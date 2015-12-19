@@ -179,6 +179,7 @@ class MainWindow(QMainWindow):
         self.ui.actionMilling.triggered.connect(self.setMachineTypeToMilling)
         self.ui.actionDragKnife.triggered.connect(self.setMachineTypeToDragKnife)
         self.ui.actionLathe.triggered.connect(self.setMachineTypeToLathe)
+        self.ui.actionLaser_Cutter.triggered.connect(self.setMachineTypeToLaserCutter)
 
         # Help
         self.ui.actionAbout.triggered.connect(self.about)
@@ -649,25 +650,45 @@ class MainWindow(QMainWindow):
         self.updateMachineType()
         self.d2g.small_reload()
 
+    def setMachineTypeToLaserCutter(self):
+        g.config.machine_type = 'laser_cutter'
+        self.updateMachineType()
+        self.d2g.small_reload()
+
     def updateMachineType(self):
         if g.config.machine_type == 'milling':
             self.ui.actionAutomaticCutterCompensation.setEnabled(True)
             self.ui.actionMilling.setChecked(True)
             self.ui.actionDragKnife.setChecked(False)
             self.ui.actionLathe.setChecked(False)
+            self.ui.actionLaser_Cutter.setChecked(False)
             self.ui.label_9.setText(self.tr("Z Infeed depth"))
         elif g.config.machine_type == 'lathe':
             self.ui.actionAutomaticCutterCompensation.setEnabled(False)
             self.ui.actionMilling.setChecked(False)
             self.ui.actionDragKnife.setChecked(False)
             self.ui.actionLathe.setChecked(True)
+            self.ui.actionLaser_Cutter.setChecked(False)
             self.ui.label_9.setText(self.tr("No Z-Axis for lathe"))
         elif g.config.machine_type == "drag_knife":
             self.ui.actionAutomaticCutterCompensation.setEnabled(False)
             self.ui.actionMilling.setChecked(False)
             self.ui.actionDragKnife.setChecked(True)
             self.ui.actionLathe.setChecked(False)
+            self.ui.actionLaser_Cutter.setChecked(False)
             self.ui.label_9.setText(self.tr("Z Drag depth"))
+        if g.config.machine_type == 'laser_cutter':
+            self.ui.actionAutomaticCutterCompensation.setEnabled(True)
+            self.ui.actionMilling.setChecked(False)
+            self.ui.actionDragKnife.setChecked(False)
+            self.ui.actionLathe.setChecked(False)
+            self.ui.actionLaser_Cutter.setChecked(True)
+            self.ui.label_10.setText(self.tr("Not Available"))
+            self.ui.label_9.setText(self.tr("Not Available"))
+            self.ui.label_8.setText(self.tr("Not Available"))
+            self.ui.label_6.setText(self.tr("Not Available"))
+            self.ui.label_5.setText(self.tr("Not Available"))
+            self.ui.label_14.setText(self.tr("Not Available"))
 
     def open(self):
         """

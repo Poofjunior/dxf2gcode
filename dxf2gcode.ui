@@ -146,16 +146,7 @@
          <property name="spacing">
           <number>1</number>
          </property>
-         <property name="leftMargin">
-          <number>5</number>
-         </property>
-         <property name="topMargin">
-          <number>5</number>
-         </property>
-         <property name="rightMargin">
-          <number>5</number>
-         </property>
-         <property name="bottomMargin">
+         <property name="margin">
           <number>5</number>
          </property>
          <item>
@@ -295,16 +286,7 @@
             <property name="spacing">
              <number>0</number>
             </property>
-            <property name="leftMargin">
-             <number>2</number>
-            </property>
-            <property name="topMargin">
-             <number>2</number>
-            </property>
-            <property name="rightMargin">
-             <number>2</number>
-            </property>
-            <property name="bottomMargin">
+            <property name="margin">
              <number>2</number>
             </property>
             <item>
@@ -341,7 +323,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>&#8960;</string>
+                     <string>⌀</string>
                     </property>
                    </widget>
                   </item>
@@ -851,7 +833,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -904,6 +886,7 @@
      <addaction name="actionMilling"/>
      <addaction name="actionLathe"/>
      <addaction name="actionDragKnife"/>
+     <addaction name="actionLaser_Cutter"/>
     </widget>
     <addaction name="actionTolerances"/>
     <addaction name="separator"/>
@@ -1171,6 +1154,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionLaser_Cutter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Laser Cutter</string>
    </property>
   </action>
  </widget>

@@ -293,6 +293,8 @@ class Shape(object):
         """
         if g.config.machine_type == 'drag_knife':
             return self.Write_GCode_Drag_Knife(PostPro)
+        elif g.config.machine_type == 'laser_cutter':
+            return self.Write_GCode_Laser_Cutter(PostPro)
 
         prv_cut_cor = self.cut_cor
         if self.cut_cor != 40 and not g.config.vars.Cutter_Compensation["done_by_machine"]:
@@ -505,6 +507,79 @@ class Shape(object):
         exstr += PostPro.chg_feed_rate(f_g1_depth)
         exstr += PostPro.lin_pol_z(workpiece_top_Z + abs(safe_margin))
         exstr += PostPro.rap_pos_z(safe_retract_depth)
+
+        # Add string to be added before the shape will be cut.
+        exstr += PostPro.write_post_shape_cut()
+
+        return exstr
+
+
+
+    def Write_GCode_Laser_Cutter(self, PostPro):
+        """
+        This method returns the string to be exported for this shape, including
+        the defined start and end move of the shape.
+        @param PostPro: this is the Postprocessor class including the methods
+        to export
+        """
+
+        # Save prior machine state.
+        prv_cut_cor = self.cut_cor
+        if self.cut_cor != 40 and not g.config.vars.Cutter_Compensation["done_by_machine"]:
+            self.cut_cor = 40
+            new_geos = Geos(self.stmove.geos[1:])
+        else:
+            new_geos = self.geos
+
+        new_geos = PostPro.breaks.getNewGeos(new_geos)
+
+        # Initialize string to hold all the GCode.
+        exstr = ""
+
+        laser_disable_depth = 0
+        laser_enable_depth = -0.01
+
+        # Save the initial Cutter correction in a variable
+        has_reversed = False
+
+        # Move the tool to the start.
+        exstr += self.stmove.geos.abs_el(0).Write_GCode(PostPro)
+
+        # Add string to be added before the shape will be cut.
+        exstr += PostPro.write_pre_shape_cut()
+
+        #exstr += PostPro.rap_pos_z(workpiece_top_Z + abs(safe_margin))  # Compute the safe margin from the initial mill depth
+        #exstr += PostPro.chg_feed_rate(f_g1_depth)
+        #exstr += PostPro.lin_pol_z(initial_mill_depth)
+        #exstr += PostPro.chg_feed_rate(f_g1_plane)
+
+        # Cutter radius compensation when G41 or G42 is on, AND cutter compensation option is set to be done inside the piece
+        if self.cut_cor != 40 and not PostPro.vars.General["cc_outside_the_piece"]:
+            exstr += PostPro.set_cut_cor(self.cut_cor)
+
+            exstr += self.stmove.geos.abs_el(1).Write_GCode(PostPro)
+            exstr += self.stmove.geos.abs_el(2).Write_GCode(PostPro)
+
+        # Enable Laser by Restore Z to (non-negative value) 0
+        exstr += PostPro.rap_pos_z(laser_disable_height)
+
+        # Write the geometries for the cut
+        for geo in new_geos.abs_iter():
+            exstr += self.Write_GCode_for_geo(geo, PostPro)
+
+        # Turn off the cutter radius compensation
+        if self.cut_cor != 40 and PostPro.vars.General["cancel_cc_for_depth"]:
+            exstr += PostPro.deactivate_cut_cor()
+
+        # Disable Laser by Restore Z to (non-negative value) 0
+        exstr += PostPro.rap_pos_z(laser_disable_height)
+
+        # Initial value of direction restored if necessary
+        if has_reversed:
+            self.reverse(new_geos)
+            self.switch_cut_cor()
+
+        self.cut_cor = prv_cut_cor
 
         # Add string to be added before the shape will be cut.
         exstr += PostPro.write_post_shape_cut()
