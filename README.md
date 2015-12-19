@@ -4,4 +4,4 @@ A fork of the original [sourceforge project](http://sourceforge.net/projects/dxf
 
 ### Added Features (under development)
 * shape-specific tool cutter compensation
-* g-code compatible with [2x_laser](https://github.com/bjj/2x_laser) add-on for LinuxCNC
+* g-code output compatible with [2x_laser](https://github.com/bjj/2x_laser) add-on for LinuxCNC

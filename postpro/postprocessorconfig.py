@@ -106,6 +106,8 @@ POSTPRO_SPEC = str('''
     pre_shape_cut = string(default=M3 M8%nl)
     post_shape_cut = string(default=M9 M5%nl)
     comment = string(default=%nl(%comment)%nl)
+    laser_power_change = string(default=M68 E0 Q%laser_power%nl)
+    laser_pulses_per_mm_change = string(default=S%laser_pulses_per_mm%nl)
 
 ''').splitlines()
 """ format, type and default value specification of the global config file"""

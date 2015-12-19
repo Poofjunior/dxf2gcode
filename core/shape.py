@@ -86,6 +86,9 @@ class Shape(object):
         self.f_g1_depth = g.config.vars.Feed_Rates['f_g1_depth']
         # Parameters for drag knife
         self.drag_angle = radians(g.config.vars.Drag_Knife_Options['drag_angle'])
+        # Parameters for laser cutter
+        self.laser_power = g.config.vars.Laser_Cutter_Options['laser_power']
+        self.laser_pulses_per_mmm = g.config.vars.Laser_Cutter_Options['laser_pulses_per_mm']
 
     def __str__(self):
         """
@@ -559,6 +562,13 @@ class Shape(object):
             exstr += PostPro.chg_feed_rate(self.f_g1_plane)
             exstr += self.stmove.geos.abs_el(1).Write_GCode(PostPro)
             exstr += self.stmove.geos.abs_el(2).Write_GCode(PostPro)
+
+        # Set the desired laser power.
+        exstr += PostPro.chg_laser_power(self.laser_power)
+
+        # Set the desired laser pulses per mm.
+        # TODO: implement!
+        #exstr += PostPro.chg_laser_pmm(self.laser_pulses_per_mm)
 
         # Write the geometries for the cut.
         for geo in new_geos.abs_iter():

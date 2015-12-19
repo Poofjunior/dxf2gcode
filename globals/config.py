@@ -121,6 +121,12 @@ CONFIG_SPEC = str('''
     # the dragDepth is given by axis3_slice_depth
     drag_angle = float(default = 20)
 
+    [Laser_Cutter_Options]
+    # laser_power: a value from 0 to 100 that indicates the percent of the tube's laser power
+    laser_power = float(default = 20)
+    # laser_pulses_per_mm: laser pulses per mm
+    laser_ppmm = float(default = 20)
+
     [Route_Optimisation]
     default_TSP = boolean(default = False)
 

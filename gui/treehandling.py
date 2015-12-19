@@ -151,6 +151,7 @@ class TreeHandler(QWidget):
         self.ui.zFinalMillDepthLineEdit.editingFinished.connect(self.toolParameterzFinalMillDepthUpdate)
         self.ui.g1FeedXYLineEdit.editingFinished.connect(self.toolParameterg1FeedXYUpdate)
         self.ui.g1FeedZLineEdit.editingFinished.connect(self.toolParameterg1FeedZUpdate)
+        self.ui.laserPowerEdit.editingFinished.connect(self.laserPowerUpdate)
 
         # Entities TreeView
         self.entity_item_model = None
@@ -997,6 +998,28 @@ class TreeHandler(QWidget):
             self.prepareExportOrderUpdate()
             g.window.canvas_scene.update()
 
+    def laserPowerUpdate(self):
+        """
+        Slot that updates the power of the laser when the corresponding
+        LineEdit changes
+        @param text: the value of LineEdit
+        """
+        self.ui.g1FeedZLineEdit.setPalette(self.palette)  # Restore color
+
+        # Get the new value and convert it to float
+        val = toFloat(self.ui.laserPowerEdit.text())
+        if val[1]:
+            selected_indexes_list = self.ui.layersShapesTreeView.selectedIndexes()
+
+            for model_index in selected_indexes_list:
+                if isValid(model_index):
+                    model_index = model_index.sibling(model_index.row(), 0)  # get the first column of the selected row, since it's the only one that contains data
+                    element = model_index.model().itemFromIndex(model_index)
+                    if isValid(element.data(SHAPE_OBJECT)):
+                        real_item = toPyObject(element.data(SHAPE_OBJECT)).shapeobj
+                        real_item.laser_power = val[0]
+                        self.laser_power = real_item.laser_power
+
     def actionOnSelectionChange(self, parent, selected, deselected):
         """
         This function is a callback called from QTreeView class when
@@ -1107,6 +1130,7 @@ class TreeHandler(QWidget):
             self.axis3_mill_depth = None
             self.f_g1_plane = None
             self.f_g1_depth = None
+            self.laser_power = None
 
             self.ui.toolDiameterComboBox.setPalette(self.palette)
             self.ui.toolDiameterLabel.setPalette(self.palette)
@@ -1162,6 +1186,7 @@ class TreeHandler(QWidget):
         self.axis3_safe_margin = self.updateAndColorizeWidget(self.ui.zSafetyMarginLineEdit,
                                                               self.axis3_safe_margin,
                                                               layer_item.axis3_safe_margin)
+
         # Shape options
         if shape_item is None:
             shape_item = layer_item.shapes[0]
@@ -1185,6 +1210,10 @@ class TreeHandler(QWidget):
         self.f_g1_depth = self.updateAndColorizeWidget(self.ui.g1FeedZLineEdit,
                                                        self.f_g1_depth,
                                                        shape_item.f_g1_depth)
+
+        self.laser_power = self.updateAndColorizeWidget(self.ui.laserPowerEdit,
+                                                              self.laser_power,
+                                                              shape_item.laser_power)
 
     def updateAndColorizeWidget(self, widget, previous_value, value):
         """

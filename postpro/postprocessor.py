@@ -225,6 +225,7 @@ class MyPostProcessor(object):
         self.feed = 0
         self.speed = 0
         self.tool_nr = 1
+        self.laser_power = 20.0
         self.comment = ""
 
         self.abs_export = self.vars.General["abs_export"]
@@ -250,6 +251,7 @@ class MyPostProcessor(object):
         self.keyvars = {"%feed": 'self.iprint(self.feed)',
                         "%speed": 'self.iprint(self.speed)',
                         "%tool_nr": 'self.iprint(self.tool_nr)',
+                        "%laser_power": 'self.fprint(self.laser_power)',
                         "%nl": 'self.nlprint()',
                         "%XE": 'self.fnprint(self.Pe.x)',
                         "%-XE": 'self.fnprint(-self.Pe.x)',
@@ -343,6 +345,20 @@ class MyPostProcessor(object):
                 nr = exstr.find('\n', nr + len(line_format % line_nr) + 2)
 
         return exstr
+
+    def chg_laser_power(self, power_level):
+        """
+        This Method is called to change the laser power level
+        for laser cutters.
+        @param power_level: (0 - 100) output power of the laser in percent
+        """
+        if float(power_level) > 100.0:
+            self.laser_power = 100.0
+        elif float(power_level) < 0.0:
+            self.laser_power = 0.0
+        else:
+            self.laser_power = power_level/100.0
+        return self.make_print_str(self.vars.Program["laser_power_change"])
 
     def chg_tool(self, tool_nr, speed):
         """
@@ -525,6 +541,14 @@ class MyPostProcessor(object):
         @return: The integer formatted as a string.
         """
         return '%i' % integer
+
+    def fprint(self, floating_point_num):
+        """
+        This method returns a float formatted as a string
+        @param float: The integer value to convert to a string
+        @return: The float formatted as a string.
+        """
+        return '%f' % floating_point_num
 
     def sprint(self, string):
         """
