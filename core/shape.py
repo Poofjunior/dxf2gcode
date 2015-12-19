@@ -526,7 +526,6 @@ class Shape(object):
         # Save prior machine state.
         prv_cut_cor = self.cut_cor
         if self.cut_cor != 40 and not g.config.vars.Cutter_Compensation["done_by_machine"]:
-            self.cut_cor = 40
             new_geos = Geos(self.stmove.geos[1:])
         else:
             new_geos = self.geos
@@ -544,35 +543,33 @@ class Shape(object):
 
         # Move the tool to the start.
         exstr += self.stmove.geos.abs_el(0).Write_GCode(PostPro)
+        exstr += PostPro.rap_pos_z(laser_disable_depth)
 
         # Add string to be added before the shape will be cut.
         exstr += PostPro.write_pre_shape_cut()
 
-        #exstr += PostPro.rap_pos_z(workpiece_top_Z + abs(safe_margin))  # Compute the safe margin from the initial mill depth
-        #exstr += PostPro.chg_feed_rate(f_g1_depth)
-        #exstr += PostPro.lin_pol_z(initial_mill_depth)
-        #exstr += PostPro.chg_feed_rate(f_g1_plane)
+        # Enable Laser by Restore Z to (non-negative value) 0
+        exstr += PostPro.rap_pos_z(laser_enable_depth)
 
-        # Cutter radius compensation when G41 or G42 is on, AND cutter compensation option is set to be done inside the piece
-        if self.cut_cor != 40 and not PostPro.vars.General["cc_outside_the_piece"]:
+        if self.cut_cor != 40 and g.config.vars.Cutter_Compensation["done_by_machine"]:
+            # Enable Cutter Compensation at the start of all shapes.
             exstr += PostPro.set_cut_cor(self.cut_cor)
 
+            # Apply Lead-In move for all shapes.
+            exstr += PostPro.chg_feed_rate(self.f_g1_plane)
             exstr += self.stmove.geos.abs_el(1).Write_GCode(PostPro)
             exstr += self.stmove.geos.abs_el(2).Write_GCode(PostPro)
 
-        # Enable Laser by Restore Z to (non-negative value) 0
-        exstr += PostPro.rap_pos_z(laser_disable_height)
-
-        # Write the geometries for the cut
+        # Write the geometries for the cut.
         for geo in new_geos.abs_iter():
             exstr += self.Write_GCode_for_geo(geo, PostPro)
 
-        # Turn off the cutter radius compensation
-        if self.cut_cor != 40 and PostPro.vars.General["cancel_cc_for_depth"]:
+        # Turn off the cutter radius compensation if enabled.
+        if self.cut_cor != 40 and g.config.vars.Cutter_Compensation["done_by_machine"]:
             exstr += PostPro.deactivate_cut_cor()
 
         # Disable Laser by Restore Z to (non-negative value) 0
-        exstr += PostPro.rap_pos_z(laser_disable_height)
+        exstr += PostPro.rap_pos_z(laser_disable_depth)
 
         # Initial value of direction restored if necessary
         if has_reversed:
@@ -581,7 +578,7 @@ class Shape(object):
 
         self.cut_cor = prv_cut_cor
 
-        # Add string to be added before the shape will be cut.
+        # Add string to be added after cutting all shapes..
         exstr += PostPro.write_post_shape_cut()
 
         return exstr

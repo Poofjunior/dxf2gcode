@@ -99,8 +99,8 @@ CONFIG_SPEC = str('''
     live_update_export_route = boolean(default = False)
     split_line_segments = boolean(default = False)
     automatic_cutter_compensation = boolean(default = False)
-    # machine types supported: milling; lathe; drag_knife
-    machine_type = option('milling', 'lathe', 'drag_knife', default = 'milling')
+    # machine types supported: milling; lathe; drag_knife; laser_cutter
+    machine_type = option('milling', 'lathe', 'drag_knife', 'laser_cutter', default = 'milling')
     # The unit used for all values in this file
     tool_units = option('mm', 'in', default = 'mm')
 
