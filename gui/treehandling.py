@@ -151,7 +151,8 @@ class TreeHandler(QWidget):
         self.ui.zFinalMillDepthLineEdit.editingFinished.connect(self.toolParameterzFinalMillDepthUpdate)
         self.ui.g1FeedXYLineEdit.editingFinished.connect(self.toolParameterg1FeedXYUpdate)
         self.ui.g1FeedZLineEdit.editingFinished.connect(self.toolParameterg1FeedZUpdate)
-        self.ui.laserPowerEdit.editingFinished.connect(self.laserPowerUpdate)
+        self.ui.laserPowerLineEdit.editingFinished.connect(self.laserPowerUpdate)
+        self.ui.laserPulsesPerMMLineEdit.editingFinished.connect(self.laserPulsesPerMMUpdate)
 
         # Entities TreeView
         self.entity_item_model = None
@@ -1004,10 +1005,10 @@ class TreeHandler(QWidget):
         LineEdit changes
         @param text: the value of LineEdit
         """
-        self.ui.g1FeedZLineEdit.setPalette(self.palette)  # Restore color
+        self.ui.laserPowerLineEdit.setPalette(self.palette)  # Restore color
 
         # Get the new value and convert it to float
-        val = toFloat(self.ui.laserPowerEdit.text())
+        val = toFloat(self.ui.laserPowerLineEdit.text())
         if val[1]:
             selected_indexes_list = self.ui.layersShapesTreeView.selectedIndexes()
 
@@ -1019,6 +1020,28 @@ class TreeHandler(QWidget):
                         real_item = toPyObject(element.data(SHAPE_OBJECT)).shapeobj
                         real_item.laser_power = val[0]
                         self.laser_power = real_item.laser_power
+
+    def laserPulsesPerMMUpdate(self):
+        """
+        Slot that updates the ppmm of the laser when the corresponding
+        LineEdit changes
+        @param text: the value of LineEdit
+        """
+        self.ui.laserPulsesPerMMLineEdit.setPalette(self.palette)  # Restore color
+
+        # Get the new value and convert it to float
+        val = toInt(self.ui.laserPulsesPerMMLineEdit.text())
+        if val[1]:
+            selected_indexes_list = self.ui.layersShapesTreeView.selectedIndexes()
+
+            for model_index in selected_indexes_list:
+                if isValid(model_index):
+                    model_index = model_index.sibling(model_index.row(), 0)  # get the first column of the selected row, since it's the only one that contains data
+                    element = model_index.model().itemFromIndex(model_index)
+                    if isValid(element.data(SHAPE_OBJECT)):
+                        real_item = toPyObject(element.data(SHAPE_OBJECT)).shapeobj
+                        real_item.laser_pulses_per_mm = val[0]
+                        self.laser_pulses_per_mm = real_item.laser_pulses_per_mm
 
     def actionOnSelectionChange(self, parent, selected, deselected):
         """
@@ -1131,6 +1154,7 @@ class TreeHandler(QWidget):
             self.f_g1_plane = None
             self.f_g1_depth = None
             self.laser_power = None
+            self.laser_pulses_per_mm = None
 
             self.ui.toolDiameterComboBox.setPalette(self.palette)
             self.ui.toolDiameterLabel.setPalette(self.palette)
@@ -1143,6 +1167,8 @@ class TreeHandler(QWidget):
             self.ui.g1FeedZLineEdit.setPalette(self.palette)
             self.ui.zInitialMillDepthLineEdit.setPalette(self.palette)
             self.ui.zFinalMillDepthLineEdit.setPalette(self.palette)
+            self.ui.laserPowerLineEdit.setPalette(self.palette)
+            self.ui.laserPulsesPerMMLineEdit.setPalette(self.palette)
 
         if number_of_selected_items == 0:
             self.ui.millSettingsFrame.setEnabled(False)
@@ -1211,9 +1237,13 @@ class TreeHandler(QWidget):
                                                        self.f_g1_depth,
                                                        shape_item.f_g1_depth)
 
-        self.laser_power = self.updateAndColorizeWidget(self.ui.laserPowerEdit,
+        self.laser_power = self.updateAndColorizeWidget(self.ui.laserPowerLineEdit,
                                                               self.laser_power,
                                                               shape_item.laser_power)
+
+        self.laser_pulses_per_mm = self.updateAndColorizeWidget(self.ui.laserPulsesPerMMLineEdit,
+                                                              self.laser_pulses_per_mm,
+                                                              shape_item.laser_pulses_per_mm)
 
     def updateAndColorizeWidget(self, widget, previous_value, value):
         """

@@ -47,6 +47,7 @@ class LayerContent(object):
         self.start_radius = g.config.vars.Tool_Parameters['1']['start_radius']
 
         self.laser_power = 20
+        self.laser_pulses_per_mm = 20
 
         # preset defaults
         self.axis3_retract = g.config.vars.Depth_Coordinates['axis3_retract']

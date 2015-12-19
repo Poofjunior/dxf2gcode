@@ -226,6 +226,7 @@ class MyPostProcessor(object):
         self.speed = 0
         self.tool_nr = 1
         self.laser_power = 20.0
+        self.laser_pulses_per_mm = 20
         self.comment = ""
 
         self.abs_export = self.vars.General["abs_export"]
@@ -252,6 +253,7 @@ class MyPostProcessor(object):
                         "%speed": 'self.iprint(self.speed)',
                         "%tool_nr": 'self.iprint(self.tool_nr)',
                         "%laser_power": 'self.fprint(self.laser_power)',
+                        "%laser_pulses_per_mm": 'self.iprint(self.laser_pulses_per_mm)',
                         "%nl": 'self.nlprint()',
                         "%XE": 'self.fnprint(self.Pe.x)',
                         "%-XE": 'self.fnprint(-self.Pe.x)',
@@ -359,6 +361,19 @@ class MyPostProcessor(object):
         else:
             self.laser_power = power_level/100.0
         return self.make_print_str(self.vars.Program["laser_power_change"])
+
+    def chg_laser_pulses_per_mm(self, laser_pulses_per_mm):
+        """
+        This Method is called to change the laser pulses-per-mm level
+        for laser cutters.
+        @param pulses_per_mm: positive integer. (High-speed cuts will
+        merge pulses
+        """
+        if int(laser_pulses_per_mm) < 0:
+            self.laser_pulses_per_mm = 0
+        else:
+            self.laser_pulses_per_mm = laser_pulses_per_mm
+        return self.make_print_str(self.vars.Program["laser_pulses_per_mm_change"])
 
     def chg_tool(self, tool_nr, speed):
         """
