@@ -84,6 +84,7 @@ class Shape(object):
         self.axis3_mill_depth = g.config.vars.Depth_Coordinates['axis3_mill_depth']
         self.f_g1_plane = g.config.vars.Feed_Rates['f_g1_plane']
         self.f_g1_depth = g.config.vars.Feed_Rates['f_g1_depth']
+        self.manual_tool_offset_radius = 0
         # Parameters for drag knife
         self.drag_angle = radians(g.config.vars.Drag_Knife_Options['drag_angle'])
 
