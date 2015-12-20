@@ -554,12 +554,14 @@ class Shape(object):
         # Enable Laser by Restore Z to (non-negative value) 0
         exstr += PostPro.rap_pos_z(laser_enable_depth)
 
+        # Set the feed rate.
+        exstr += PostPro.chg_feed_rate(self.f_g1_plane)
+
         if self.cut_cor != 40 and g.config.vars.Cutter_Compensation["done_by_machine"]:
             # Enable Cutter Compensation at the start of all shapes.
             exstr += PostPro.set_cut_cor(self.cut_cor)
 
             # Apply Lead-In move for all shapes.
-            exstr += PostPro.chg_feed_rate(self.f_g1_plane)
             exstr += self.stmove.geos.abs_el(1).Write_GCode(PostPro)
             exstr += self.stmove.geos.abs_el(2).Write_GCode(PostPro)
 
